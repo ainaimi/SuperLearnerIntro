@@ -1,0 +1,304 @@
+\documentclass[12pt]{article}
+
+%math symbols
+\usepackage{eqnarray,amsmath}
+\usepackage{amssymb}
+\usepackage{cancel}
+
+%font
+\usepackage{fourier}
+\usepackage[T1]{fontenc}
+
+%DAGs
+\usepackage{tikz}
+\usetikzlibrary{arrows,positioning,snakes,calc,shapes}
+\usepackage{accents}
+\usepackage{sectsty}
+\sectionfont{\fontsize{12}{15}\selectfont}
+\subsectionfont{\normalfont\fontsize{12}{15}\selectfont}
+\subsubsectionfont{\itshape\normalfont\fontsize{12}{15}\selectfont}
+\usepackage{bm}
+\usepackage{lineno}
+
+%expectation operator
+\usepackage{relsize}
+\newcommand{\E}{\mathop{\vcenter{\hbox{\relsize{+1}$E$}}}}
+
+%logit operator
+\DeclareMathOperator{\logit}{logit}
+\DeclareMathOperator{\expit}{expit}
+
+%doublehat operator
+\usepackage{accents}
+\newlength{\dhatheight}
+\newcommand{\doublehat}[1]{%
+    \settoheight{\dhatheight}{\ensuremath{\hat{#1}}}%
+    \addtolength{\dhatheight}{-0.15ex}%
+    \hat{\vphantom{\rule{1pt}{\dhatheight}}%
+    \smash{\hat{#1}}}}
+   
+%independence operator
+\newcommand{\bigCI}{\mathrel{\text{\scalebox{1.07}{$\perp\mkern-10mu\perp$}}}}
+
+%patch for linenumbers to work correctly with Ams Math Environment
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+	\expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+	\expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+	\renewenvironment{#1}%
+	{\linenomath\csname old#1\endcsname}%
+	{\csname oldend#1\endcsname\endlinenomath}%
+}
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+	\patchAmsMathEnvironmentForLineno{#1}%
+	\patchAmsMathEnvironmentForLineno{#1*}%
+}
+\AtBeginDocument{%
+	\patchBothAmsMathEnvironmentsForLineno{equation}%
+	\patchBothAmsMathEnvironmentsForLineno{align}%
+	\patchBothAmsMathEnvironmentsForLineno{flalign}%
+	\patchBothAmsMathEnvironmentsForLineno{alignat}%
+	\patchBothAmsMathEnvironmentsForLineno{gather}%
+	\patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+
+%misc
+\usepackage{color}
+\usepackage{wrapfig}
+\usepackage{indentfirst} % indents every paragraph
+\usepackage{setspace}
+\usepackage[numbers,super,sort&compress]{natbib} % automate references
+\usepackage{booktabs} % for lines in table
+\usepackage{rotating} % For sideways tables/figures
+\usepackage[margin = .85in]{geometry} % allows to set margins. Use "vmargin" package to get different sized margins.
+\usepackage{fancyhdr} %these three change the page number style from normal to "fancy".
+\pagestyle{fancy}
+\fancyhf{}
+\usepackage{tabularx}
+\usepackage{pdfpages}
+\usepackage{longtable}
+\renewcommand{\headrulewidth}{0pt}
+\pagenumbering{arabic} 
+\usepackage{subfig}
+\usepackage{mdwlist}
+\usepackage{url}
+\usepackage{verbatim}
+\urlstyle{same}
+\usepackage{multirow}
+\usepackage{multicol}
+\captionsetup[subfloat]{position = top, font = large} % For sub-figure captions
+\usepackage[compact]{titlesec}
+\usepackage[colorlinks = TRUE, urlcolor = blue, linkcolor = black, citecolor = black]{hyperref}
+\usepackage{float}
+\usepackage{xfrac}
+\usepackage{lscape}
+\usepackage{graphicx}
+%remove square brackets in bib
+\makeatletter
+\renewcommand\@biblabel[1]{#1.}
+\makeatother
+
+\rfoot{\thepage}
+
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\thispagestyle{empty}
+\baselineskip=28pt
+
+\noindent Education Corner
+
+\vskip .2cm
+{{\noindent \huge Stacked Generalization: An Introduction to the Super Learner}}
+
+\baselineskip=12pt
+
+\vskip 1cm
+\noindent Ashley I. Naimi, PhD$^{1, *}$\\[.5em]
+
+
+\vskip 1cm
+\noindent $^1$ Department of Epidemiology, University of Pittsburgh.\\[.5em]
+
+
+\vskip 1cm
+\noindent \hskip -.2cm
+\begin{tabular}{ll}
+*Correspondence: & Department of Epidemiology \\[-.1cm]
+& University of Pittsburgh \\[-.1cm]
+& 130 DeSoto Street \\[-.1cm]
+& 503 Parran Hall \\[-.1cm]
+& Pittsburgh, PA 15261\\[-.1cm]
+& \href{mailto:ashley.naimi@pitt.edu}{ashley.naimi@pitt.edu}
+\end{tabular}
+
+\vfill
+\vskip 1cm
+\noindent Conflicts of Interest: None
+\vskip 1cm
+\noindent Acknowledgements: This research was supported in part by the University of Pittsburgh Center for Research Computing through the computing resources provided, and the assistance of Dr. Kim Wong.
+\vskip 1cm
+\noindent Sources of Funding: NIH grant number UL1TR001857.
+\vskip 1cm
+
+\noindent \hskip -.2cm
+\begin{tabular}{ll}
+Target Journal: 	& \emph{Int J Epidemiol} \\[-.01cm]
+Text word count: 	&   / 3,000 \\[-.01cm]
+Abstract word count: &  / 250 \\[-.01cm]
+Number of Figures: 	&  \\[-.01cm]
+Number of Tables:  &	 \\[-.01cm]
+Number of References:  &	  \\[-.01cm]
+Running head:  &	 Stacked Generalization\\
+\end{tabular}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\thispagestyle{empty}
+\begin{center}
+{\Large{\bf Abstract}}
+\end{center}
+\baselineskip=12pt
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+\baselineskip=12pt
+\par\vfill\noindent
+{\bf KEY WORDS:} Machine Learning; SuperLearner; Stacked Generalization; Stacked Regression.
+
+\par\medskip\noindent
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+\newpage
+\doublespacing
+\linenumbers
+\setcounter{page}{1}
+
+Predicting health related outcomes is a topic of major interest in clinical and public health settings. Despite numerous advances in methodology in the past two decades, clinical and population health research scientists often rely on simple regression models (e.g., linear, logistic) to develop prediction models. Often, only a single model is specified to generate predictions.
+
+In the early 1990s, Wolpert developed an approach to combine several ``lower-level'' machine learning methods via a ``higher-level'' model to increase predictive accuracy.\cite{Wolpert1992} He termed the approach ``stacked generalization,'' which later became known as stacking. Later, Breiman demonstrated how stacking can be used to improve the predictive accuracy in a regression context, and showed that imposing certain constraints on the higher-level model improved predictive performance.\cite{Breiman1996} More recently, van der Laan and colleagues proved that stacking possesses certain ideal theoretical properties, among which is that it performs at least as well as the best individual predictor included in the ensemble.\cite{vanderLaan2006a,vanderLaan2007} In this context, the term ``Super Learner'' was coined.
+
+The Super Learner has tremendous potential for improving the quality of prediction algorithms in applied health sciences, and minimizing the extent to which clinical and population health findings rely on parametric modeling assumptions. While a small number of illustrative examples exist, they are all in the context of realistic studies with numerous covariates and a large number lower-level learning algorithms.\cite{Rose2013,Rose2011} Here, we build on this work and demonstrate the Super Learner in the context of two simple simulated examples using SAS and R. We provide guidelines on which options to use when fitting the Super Learner to empirical data, and discuss settings in which Super Learner may lead to less than optimal performance.
+
+\section*{Example 1: Dose Response}
+
+In the first example, we simulate a continuous exposure and outcome, with a relation as displayed in Figure \ref{F1}. These 1,000 observations were generated from the following regression model:
+\begin{equation}
+	Y = 5 + 4\times\sqrt{9 \times X}\times \mathbb{I}(X<2) + \mathbb{I}(X\geq 2)\times(|x-6|^2) + \epsilon,
+\end{equation}
+where $\mathbb{I}()$ denotes the indicator function that returns a 1 if the argument is true (zero otherwise), where $\epsilon$ was drawn from a doubly-exponential distribution with mean zero and scale parameter one, and where $X$ was drawn from a uniform distribution with a minimum of zero and a maximum of eight. The true dose-response curve is depicted by the blue line in Figure \ref{F1}, and we demonstrate how the super learner can be used to flexibly model this relation without making parametric assumptions about its form.
+
+To simplify our illustration, we rely on only two algorithms in the Super Learner function: generalized additive models with 5-knot natural cubic splines,\cite{Hastie1990} and neural networks with five units in the hidden layer.\cite{Hastie2009}
+
+\subsection*{Step 1}
+
+We first split the data into $5$ roughly equal groups to conduct $5$-fold cross validation (CV). We then fit both the generalized additive model and nnet algorithm to the data 5 times: once with each of the CV groups removed. 
+
+\subsection*{Step 2}
+
+In each CV group, we generate predicted values from these 5 fits using the data that was excluded from the fold. This gives a total of five sets of predicted values for each method (GAM and nnet).
+
+\subsection*{Step 3}
+
+For each method, we then calculate a set of five mean squared error statistics where, in each CV group, the following equation is applied:
+\begin{equation}
+	MSE = E(\hat{y} - y)^2,
+\end{equation}
+where $\hat{y}$ are the predicted values for a given CV fold and for a given method, and $y$ are the corresponding observed values. This yields five different mean squared errors, which we then average to obtain two mean squared errors (one for each method). In our simple example, these MSE values are:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rll}
+  \hline
+ Method & MSE \\ 
+  \hline
+GAM & 2.58 \\ 
+nnet & 2.56 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+Steps 1 to 3 consist of the steps needed to estimate the ``lower level,'' or level 0 models. The resulting predictions from these models are the level 0 data. We must now generate a level 1 model that will allow us to combine the predictions from both the GAM and nnet algorithms. 
+
+\subsection*{Step 4}
+Breiman showed that constraining the coefficients of the level 1 model to be non-negative guaranteed that the predictive accuracy would be as good as or better than any given algorithm included in the Super Learner. To estimate the level 1 model, we first re-combine the observed and predicted values from each CV fold, and use non-negative least squares to regress the actual outcome against the predicted outcomes from each method, without an intercept:
+\begin{equation}
+	E(Y) = \alpha_1\hat{Y}_{\text{GAM}} +  \alpha_1\hat{Y}_{\text{nnet}}, \;\;\; (\alpha_1 , \alpha_2) \geq (0,0)
+\end{equation}
+
+We then normalize the coefficients from this model so that they sum to 1. In our simple example, the coefficient values are:
+\begin{table}[ht]
+\centering
+\begin{tabular}{rll}
+  \hline
+ Method & $\hat{\alpha}$ \\ 
+  \hline
+ GAM & 0.496 \\ 
+ nnet & 0.504 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+
+These estimates can be interpreted as follows: both generalized additive models and neural networks account for 50\% of predictive accuracy.
+
+\subsection*{Step 5}
+
+All of the components have now been estimated, and the next step is to generate predictions from the Super Learner. To do this, we proceed by fitting the GAM and nnet algorithms to the entire sample (i.e., not the CV folds) and generate predictions from each.
+
+We combine these predictions with the parameter estimates from the non-negative least squares model, as:
+\begin{equation}
+	\hat{Y}_{\text{SL}} = 0.496\times \hat{Y}_{\text{GAM}} + 0.504 \times \hat{Y}_{\text{nnet}}
+\end{equation}
+
+We have thereby generated predictions from the Super Learner.
+
+\section*{Example 2: Event Prediction}
+
+
+
+\section*{Discussion}
+
+\begin{itemize}
+	\item Inference w singly v doubly robust non-parametric estimators
+	\item Predicting v balancing the PS
+	\item 
+\end{itemize}
+
+\newpage
+
+\begin{figure}[!p]
+\centering\includegraphics[scale=1]{figure1}
+\caption{.}\label{F1}
+\end{figure}
+
+
+\newpage
+\bibliographystyle{epid.bst}
+\bibliography{ref_main_v4.bib}
+
+\end{document}
