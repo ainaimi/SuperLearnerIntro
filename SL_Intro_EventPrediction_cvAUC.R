@@ -8,8 +8,7 @@ library(SuperLearner);library(data.table);library(nnls);library(mvtnorm)
 library(ranger);library(xgboost);library(splines);library(Matrix)
 library(ggplot2);library(xtable);library(pROC)
 
-# set the working directory: e.g. 
-setwd("~/Dropbox/Documents/Research/Papers/SuperLearnerIntro/")
+library(here)
 
 # EXAMPLE 2
 set.seed(123)
@@ -58,7 +57,7 @@ fitY<-SuperLearner(Y=y,X=x,family="binomial",
 #		'Coef' column gives the weights for the final SuperLearner (meta-learner)
 fitY
 
-# Obtain the predicted probability of the outcome
+# Obtain the predicted probability of the outcome from SL
 y_pred<-predict(fitY, onlySL=T)$pred
 p <- data.frame(y=y, y_pred=y_pred)
 head(p)
@@ -169,7 +168,6 @@ Cbayes<-data.frame(sens=a$sensitivities,spec=a$specificities)
 a<-roc(y, p2, direction="auto") 
 Cpoly<-data.frame(sens=a$sensitivities,spec=a$specificities)
 
-pdf(file="figure2.pdf",height=4,width=5)
 cols <- c("SuperLearner Package"="red","Manual SuperLearner"="blue", "Bayes GLM"="green", "PolyMARS"="black")
 ggplot() +
   geom_step(data=C, aes(1-spec,sens,color="Manual SuperLearner"),size=.75) +
@@ -183,4 +181,3 @@ ggplot() +
   labs(x = "1 - Specificity",y = "Sensitivity") +
   geom_abline(intercept=0,slope=1,col="gray") +
   scale_colour_manual(name="",values=cols)
-dev.off()

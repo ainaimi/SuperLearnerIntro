@@ -8,13 +8,13 @@ library(SuperLearner);library(data.table);library(nnls);library(rmutil)
 library(ranger);library(xgboost);library(splines);library(Matrix)
 library(ggplot2);library(xtable)
 
+library(here)
+
 # This program uses GAMs with 5 degrees of freedom (df=5)
 # The default for the SuperLearner is df = 2
 # To change these defaults, we "source" the following program, 
 # taken from Eric Polley's GitHub site: https://github.com/ecpolley/SuperLearnerExtra
-source("~/SLwrappers/create.SL.gam.Wrapper.R")
-
-setwd("~/Dropbox/Documents/Research/Papers/SuperLearnerIntro/")
+source("./create.SL.gam.Wrapper.R")
 
 # EXAMPLE 1
 # set the seed for reproducibility
@@ -49,7 +49,7 @@ head(splt[[2]])
 #-------------------------------------------------------------------------------
 # Create the 5 df GAMs and size = 5 NNET using functions called from programs "sourced" above
 create.SL.gam(deg.gam = 5)
-create.SL.nnet(size=4)
+#create.SL.nnet(size=4)
 
 # Specifying the SuperLearner library of candidate algorithms
 sl.lib <- c("SL.gam.5","SL.earth")
@@ -106,7 +106,7 @@ risk2<-lapply(1:folds,function(ii) mean((splt[[ii]][,2]-splt[[ii]][,4])^2))
 
 ## 3: average the estimated risks across the 5 folds to obtain 1 measure of performance for each algorithm
 a<-rbind(cbind("gam",mean(do.call(rbind,risk1),na.rm=T)),
-      cbind("nnet",mean(do.call(rbind,risk2),na.rm=T)))
+      cbind("earth",mean(do.call(rbind,risk2),na.rm=T)))
 
 # checking to see match with SL output 
 fitY
@@ -157,7 +157,6 @@ Dl2<-data.frame(xl,yS2)
 Dgam = data.frame(xl, p1)
 Dearth = data.frame(xl, p2)
 
-pdf(file="figure1.pdf",height=4,width=5)
 cols <- c("Truth"="gray25","SuperLearner Package"="red","Manual SuperLearner"="blue", 
 	"gam"= "green4", "earth"="deepskyblue2")
 ggplot() +
@@ -166,11 +165,9 @@ ggplot() +
   geom_line(data=Dl1, aes(xl,yS,color="SuperLearner Package"),size=.5, linetype=2) + 
    geom_line(data=Dgam, aes(xl,p1,color="gam"),size=.75, linetype=2) + 
    geom_line(data=Dearth, aes(xl,p2,color="earth"),size=.75, linetype=2) + 
-
   geom_line(data=Dl, aes(xl,yl,color="Truth"),size=.5) + 
   scale_colour_manual(name="",values=cols) +
   theme_light() + theme(legend.position=c(.8,.75)) +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) + 
   labs(x = "Exposure",y = "Outcome")
-dev.off()
